@@ -1,0 +1,30 @@
+version: '3'    # phiển bản cấu trúc của docker-compose.yml
+services:       # danh sách các dịch vụ đc chạy bởi docker-compose.yml
+  db:           # dịch vụ mysql - bản mới nhất ( latest)
+    image: mysql:latest
+    environment:
+      - MYSQL_DATABASE=Cloud_Computing
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=12345 # 
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1 # equivalent to True
+    volumes:
+      - "./db:/docker-entrypoint-initdb.d" # thửu mục db kết nối với thư mục docker -- : sẽ giữ nguyên csdl khi tắt container
+      - "mysql-data:/var/lib/mysql"
+  www:         # dịch vụ máy chủ web apache-php 
+    build: .   # thư mục hiện tại  liên kết với thư mục var/..html trong container, cho phép đồng bộ hóa các file php và tài nguyên khác
+    volumes:
+      - "./:/var/www/html" # sync the current dir on local machine to the dir of container
+       
+    ports:
+      - 80:80  # cổng kết nối 
+      - 443:443 # for future ssl traffic
+  phpmyadmin:  # dihcj vụ quản lý cơ sở dữ liệu 
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 100:80
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+
+volumes:
+  mysql-data:
